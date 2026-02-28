@@ -345,10 +345,8 @@ func (provider *Badger) Init() error {
 func (provider *Badger) Reset() error {
 	if err := provider.DropAll(); err != nil {
 		provider.logger.Errorf("Impossible to reset the Badger DB, %v", err)
-	}
 
-	if err := provider.Close(); err != nil {
-		provider.logger.Errorf("Impossible to close the Badger DB, %v", err)
+		return err
 	}
 
 	return nil
