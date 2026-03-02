@@ -189,7 +189,8 @@ func (provider *Badger) Get(key string) []byte {
 
 	if item != nil {
 		_ = item.Value(func(val []byte) error {
-			result = val
+			result = make([]byte, len(val))
+			copy(result, val)
 
 			return nil
 		})
@@ -210,7 +211,8 @@ func (provider *Badger) GetMultiLevel(key string, req *http.Request, validator *
 
 		if result != nil {
 			_ = result.Value(func(b []byte) error {
-				val = b
+				val = make([]byte, len(b))
+				copy(val, b)
 
 				return nil
 			})
@@ -268,7 +270,8 @@ func (provider *Badger) SetMultiLevel(baseKey, variedKey string, value []byte, v
 
 		if item != nil {
 			_ = item.Value(func(b []byte) error {
-				val = b
+				val = make([]byte, len(b))
+				copy(val, b)
 
 				return nil
 			})
