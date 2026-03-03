@@ -325,13 +325,11 @@ func (provider *Badger) Init() error {
 
 // Reset method will reset or close provider.
 func (provider *Badger) Reset() error {
-	if err := provider.DropAll(); err != nil {
-		provider.logger.Errorf("Impossible to reset the Badger DB, %v", err)
+	// Close the DB connection
+	if provider.DB != nil {
+		provider.DB.Close()
 	}
-
-	if err := provider.Close(); err != nil {
-		provider.logger.Errorf("Impossible to close the Badger DB, %v", err)
-	}
-
+	// Only delete this instance from the cache
+	enabledBadgerInstances.Delete(provider.Uuid())
 	return nil
 }

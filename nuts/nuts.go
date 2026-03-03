@@ -25,9 +25,10 @@ var nutsInstanceMap = sync.Map{}
 type Nuts struct {
 	*nutsdb.DB
 
-	stale  time.Duration
-	logger core.Logger
-	uuid   string
+	stale        time.Duration
+	logger       core.Logger
+	uuid         string
+	instanceKey  string
 }
 
 const (
@@ -190,6 +191,7 @@ func Factory(nutsConfiguration core.CacheProvider, logger core.Logger, stale tim
 		stale:  stale,
 		logger: logger,
 		uuid:   fmt.Sprintf("%s-%s", nutsOptions.Dir, stale),
+		instanceKey: nutsOptions.Dir,
 	}
 	nutsInstanceMap.Store(nutsOptions.Dir, instance.DB)
 
@@ -413,7 +415,11 @@ func (provider *Nuts) Init() error {
 
 // Reset method will reset or close provider.
 func (provider *Nuts) Reset() error {
-	return provider.Update(func(tx *nutsdb.Tx) error {
-		return tx.DeleteBucket(1, bucket)
-	})
+	// Close the DB connection
+	if provider.DB != nil {
+		provider.DB.Close()
+	}
+	// Only delete this instance from the cache
+	nutsInstanceMap.Delete(provider.instanceKey)
+	return nil
 }
